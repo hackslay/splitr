@@ -1,7 +1,7 @@
-from splitr import split_audio
 import tkinter as tk
-from tkinter import filedialog
-from splitr import split_audio  # Assuming your splitr functions are correctly modularized and importable
+from tkinter import filedialog, messagebox
+import threading
+from splitr import split_audio  # Import your existing function
 
 def browse_file():
     filename = filedialog.askopenfilename(filetypes=(("Audio files", "*.mp3;*.wav"), ("All files", "*.*")))
@@ -11,11 +11,18 @@ def browse_file():
 def start_processing():
     file_path = file_path_entry.get()
     start_time = start_time_entry.get()
+    if file_path and start_time:
+        thread = threading.Thread(target=process_audio, args=(file_path, start_time))
+        thread.start()
+    else:
+        messagebox.showerror("Error", "Please specify both file path and start time.")
+
+def process_audio(file_path, start_time):
     try:
         split_audio(file_path, start_time)
-        output_text.insert(tk.END, "Processing completed successfully!\n")
+        tk.messagebox.showinfo("Success", "Processing completed successfully!")
     except Exception as e:
-        output_text.insert(tk.END, f"Error: {str(e)}\n")
+        tk.messagebox.showerror("Error", str(e))
 
 app = tk.Tk()
 app.title("Splitr GUI")
@@ -35,9 +42,5 @@ start_time_entry.pack(padx=20, pady=5)
 # Start Button
 start_button = tk.Button(app, text="Start Processing", command=start_processing)
 start_button.pack(pady=20)
-
-# Output Text Area
-output_text = tk.Text(app, height=10, width=50)
-output_text.pack(padx=20, pady=20)
 
 app.mainloop()
