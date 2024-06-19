@@ -1,7 +1,6 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import threading
-from splitr import split_audio  # Import your existing function
 
 def browse_file():
     filename = filedialog.askopenfilename(filetypes=(("Audio files", "*.mp3;*.wav"), ("All files", "*.*")))
@@ -12,6 +11,13 @@ def start_processing():
     file_path = file_path_entry.get()
     start_time = start_time_entry.get()
     if file_path and start_time:
+        # Disable UI
+        file_path_entry.config(state='disabled')
+        start_time_entry.config(state='disabled')
+        start_button.config(state='disabled')
+        progress_bar.start(10)  # Start the indeterminate progress bar
+
+        # Start thread
         thread = threading.Thread(target=process_audio, args=(file_path, start_time))
         thread.start()
     else:
@@ -19,10 +25,18 @@ def start_processing():
 
 def process_audio(file_path, start_time):
     try:
+        # Assuming split_audio is a function from splitr module
+        from splitr import split_audio
         split_audio(file_path, start_time)
         tk.messagebox.showinfo("Success", "Processing completed successfully!")
     except Exception as e:
         tk.messagebox.showerror("Error", str(e))
+    finally:
+        # Re-enable UI
+        file_path_entry.config(state='normal')
+        start_time_entry.config(state='normal')
+        start_button.config(state='normal')
+        progress_bar.stop()  # Stop the indeterminate progress bar
 
 app = tk.Tk()
 app.title("Splitr GUI")
@@ -42,5 +56,9 @@ start_time_entry.pack(padx=20, pady=5)
 # Start Button
 start_button = tk.Button(app, text="Start Processing", command=start_processing)
 start_button.pack(pady=20)
+
+# Progress Bar
+progress_bar = ttk.Progressbar(app, orient='horizontal', mode='indeterminate')
+progress_bar.pack(fill='x', padx=20, pady=10)
 
 app.mainloop()
