@@ -1,5 +1,6 @@
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
+import os
 
 def get_milliseconds(hms_time):
     """ Convert time in 'hh:mm:ss' format to milliseconds """
@@ -35,8 +36,12 @@ def split_audio(file_path, start_time):
     min_length_ms = 15 * 60 * 1000
     combined_chunks = combine_chunks(chunks, min_length_ms)
 
+     # Determine the directory of the input file
+    file_dir = os.path.dirname(file_path)
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+
     for i, chunk in enumerate(combined_chunks):
-        out_file = f"chunk{i}.mp3"
+        out_file = os.path.join(file_dir, f"{base_name}{i}.mp3")
         chunk.export(out_file, format="mp3")
 
 if __name__ == "__main__":
