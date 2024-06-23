@@ -52,6 +52,7 @@ browse_button.pack()
 tk.Label(app, text="Start Time (hh:mm:ss):").pack()
 start_time_entry = tk.Entry(app, width=20)
 start_time_entry.pack(padx=20, pady=5)
+start_time_entry.insert(0, "00:00:00")  # Set default value
 
 # Start Button
 start_button = tk.Button(app, text="Start Processing", command=start_processing)
